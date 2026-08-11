@@ -109,45 +109,24 @@
 
 <script>
     // ================= CONFIGURATION =================
-    const TAILSCALE_URL = "http://100.118.132.29";
-    const LOCAL_LAN_URL = "http://sirihouse.local";  
+    const TAILSCALE_URL = "https://sirihouse.tailb30c42.ts.net"; 
+    const LOCAL_LAN_URL = "http://sirihouse.local"; 
     const TIMEOUT_MS = 2000; 
     // =================================================
 
-    // ฟังก์ชันเช็กสัญญาณด้วยเทคนิค Image โหลดผ่าน HTTPS -> HTTP ได้ไม่โดน CORS บล็อก
-    function checkConnectionByImage(url) {
-        return new Promise((resolve) => {
-            const img = new Image();
-            let isSettled = false;
+    function checkUrl(url) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
-            const timer = setTimeout(() => {
-                if (!isSettled) {
-                    isSettled = true;
-                    img.src = "";
-                    resolve(false);
-                }
-            }, TIMEOUT_MS);
-
-            img.onload = () => {
-                if (!isSettled) {
-                    isSettled = true;
-                    clearTimeout(timer);
-                    resolve(true);
-                }
-            };
-
-            img.onerror = () => {
-                if (!isSettled) {
-                    isSettled = true;
-                    clearTimeout(timer);
-                    // สำหรับ Image ถ้า Server มีตัวตน แม้ส่ง Error กลับมา ก็นับว่าติดต่อได้
-                    resolve(true);
-                }
-            };
-
-            // ยิงไปขอไฟล์ favicon พร้อม timestamp เพื่อไม่ให้ติด Cache
-            img.src = url + "/favicon.ico?t=" + Date.now();
-        });
+        return fetch(url + "/favicon.ico", { mode: 'no-cors', cache: 'no-store', signal: controller.signal })
+            .then(() => {
+                clearTimeout(timeoutId);
+                return true;
+            })
+            .catch(() => {
+                clearTimeout(timeoutId);
+                return false;
+            });
     }
 
     async function checkConnection() {
@@ -155,25 +134,25 @@
         const errorState = document.getElementById('errorState');
         const statusText = document.getElementById('statusText');
 
-        // Step 1: เช็ก Tailscale IP ก่อน
-        statusText.innerText = "กำลังตรวจสอบการเชื่อมต่อ Tailscale...";
-        const isTailscaleOk = await checkConnectionByImage(TAILSCALE_URL);
+        // 1. ตรวจสอบ Tailscale HTTPS ก่อน
+        if (statusText) statusText.innerText = "กำลังตรวจสอบการเชื่อมต่อ Tailscale...";
+        const isTailscaleOk = await checkUrl(TAILSCALE_URL);
         if (isTailscaleOk) {
             window.location.replace(TAILSCALE_URL);
             return;
         }
 
-        // Step 2: เช็ก Local LAN IP
-        statusText.innerText = "กำลังตรวจสอบเครือข่ายภายในบ้าน...";
-        const isLocalOk = await checkConnectionByImage(LOCAL_LAN_URL);
+        // 2. ถ้าไม่มี Tailscale ค่อยตรวจสอบ Local LAN ในบ้าน
+        if (statusText) statusText.innerText = "กำลังตรวจสอบเครือข่ายภายในบ้าน...";
+        const isLocalOk = await checkUrl(LOCAL_LAN_URL);
         if (isLocalOk) {
             window.location.replace(LOCAL_LAN_URL);
             return;
         }
 
-        // Step 3: หากเข้าไม่ได้ทั้งคู่
-        checkingState.classList.add('hidden');
-        errorState.classList.remove('hidden');
+        // 3. หากเข้าไม่ได้ทั้งสองเส้นทาง
+        if (checkingState) checkingState.classList.add('hidden');
+        if (errorState) errorState.classList.remove('hidden');
     }
 
     function openTailscaleApp() {
