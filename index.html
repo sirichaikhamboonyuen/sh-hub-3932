@@ -39,19 +39,11 @@
             --badge-ts-text: #38bdf8;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Prompt', 'Plus Jakarta Sans', -apple-system, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
 
         body {
             background-color: var(--bg-color);
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.12) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.12) 0px, transparent 50%);
+            background-image: radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.12) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.12) 0px, transparent 50%);
             color: var(--text-main);
             display: flex;
             justify-content: center;
@@ -60,162 +52,22 @@
             padding: 20px;
         }
 
-        .container {
-            width: 100%;
-            max-width: 420px;
-        }
-
-        /* Glassmorphism Card */
-        .glass-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--card-border);
-            border-radius: 28px;
-            padding: 2rem 1.5rem;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            text-align: center;
-        }
-
-        .header-icon {
-            width: 64px;
-            height: 64px;
-            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1rem;
-            font-size: 32px;
-            color: #fff;
-            box-shadow: 0 8px 16px rgba(2, 132, 199, 0.3);
-        }
-
-        h1 {
-            font-size: 1.4rem;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-            letter-spacing: -0.5px;
-        }
-
-        .subtitle {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            margin-bottom: 1.25rem;
-        }
-
-        /* Badge สถานะ */
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            margin-bottom: 1.5rem;
-            transition: all 0.3s ease;
-        }
-
-        .badge-lan {
-            background-color: var(--badge-lan-bg);
-            color: var(--badge-lan-text);
-            border: 1px solid rgba(52, 211, 153, 0.3);
-        }
-
-        .badge-tailscale {
-            background-color: var(--badge-ts-bg);
-            color: var(--badge-ts-text);
-            border: 1px solid rgba(56, 189, 248, 0.3);
-        }
-
-        /* Dashboard Link Grid */
-        .services-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 1rem;
-            text-align: left;
-        }
-
-        .service-card {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 14px 16px;
-            border-radius: 16px;
-            text-decoration: none;
-            color: var(--text-main);
-            transition: all 0.2s ease;
-        }
-
-        .service-card:hover {
-            background: rgba(255, 255, 255, 0.08);
-            transform: translateY(-2px);
-        }
-
-        .service-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .service-icon {
-            font-size: 22px;
-            color: var(--accent-blue);
-            background: rgba(56, 189, 248, 0.1);
-            padding: 8px;
-            border-radius: 10px;
-        }
-
-        .service-title {
-            font-weight: 500;
-            font-size: 0.95rem;
-        }
-
-        /* Loading Spinner */
-        .spinner {
-            width: 44px;
-            height: 44px;
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            border-left-color: var(--accent-blue);
-            animation: spin 1s linear infinite;
-            margin: 1.5rem auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .btn-action {
-            width: 100%;
-            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-            color: #fff;
-            padding: 14px;
-            border-radius: 14px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .btn-retry {
-            background: transparent;
-            color: var(--text-muted);
-            border: 1px solid var(--card-border);
-            box-shadow: none;
-        }
-
+        .container { width: 100%; max-width: 420px; }
+        .glass-card { background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--card-border); border-radius: 28px; padding: 2rem 1.5rem; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); text-align: center; }
+        .header-icon { width: 64px; height: 64px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 32px; color: #fff; box-shadow: 0 8px 16px rgba(2, 132, 199, 0.3); }
+        h1 { font-size: 1.4rem; font-weight: 600; margin-bottom: 0.25rem; letter-spacing: -0.5px; }
+        .subtitle { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.25rem; }
+        .badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 500; margin-bottom: 1.5rem; }
+        .badge-lan { background-color: var(--badge-lan-bg); color: var(--badge-lan-text); border: 1px solid rgba(52, 211, 153, 0.3); }
+        .badge-tailscale { background-color: var(--badge-ts-bg); color: var(--badge-ts-text); border: 1px solid rgba(56, 189, 248, 0.3); }
+        .services-grid { display: flex; flex-direction: column; gap: 12px; margin-top: 1rem; text-align: left; }
+        .service-card { display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); padding: 14px 16px; border-radius: 16px; text-decoration: none; color: var(--text-main); transition: all 0.2s ease; }
+        .service-card:hover { background: rgba(255, 255, 255, 0.08); transform: translateY(-2px); }
+        .service-icon { font-size: 22px; color: var(--accent-blue); background: rgba(56, 189, 248, 0.1); padding: 8px; border-radius: 10px; }
+        .spinner { width: 44px; height: 44px; border: 3px solid rgba(255, 255, 255, 0.1); border-radius: 50%; border-left-color: var(--accent-blue); animation: spin 1s linear infinite; margin: 1.5rem auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .btn-action { width: 100%; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; padding: 14px; border-radius: 14px; font-size: 0.95rem; font-weight: 600; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; }
+        .btn-retry { background: transparent; color: var(--text-muted); border: 1px solid var(--card-border); }
         .hidden { display: none !important; }
     </style>
 </head>
@@ -223,79 +75,58 @@
 
 <div class="container">
     <div class="glass-card">
-        
-        <!-- Header -->
-        <div class="header-icon">
-            <i class="ph ph-house-line"></i>
-        </div>
+        <div class="header-icon"><i class="ph ph-house-line"></i></div>
         <h1>SiriHouse Hub</h1>
         <p class="subtitle">ศูนย์รวมการใช้งานระบบสมาร์ทโฮม SiriHouse</p>
 
-        <!-- 1. หน้ากำลังเช็คเครือข่าย -->
         <div id="checkingState">
             <div class="spinner"></div>
             <p id="statusText" style="font-size: 0.9rem; color: var(--text-muted);">กำลังตรวจสอบเส้นทางเชื่อมต่อ...</p>
         </div>
 
-        <!-- 2. หน้า Dashboard (แสดงเมื่อเชื่อมต่อผ่าน) -->
         <div id="dashboardState" class="hidden">
             <div id="network-badge" class="badge"></div>
-
             <div class="services-grid">
-                <!-- ลิงก์ไปหน้า Router (โชว์เฉพาะตอนอยู๋ในบ้าน) -->
-                <a id="link-router" href="http://192.168.20.1" target="_blank" class="service-card">
-                    <div class="service-info">
-                        <i class="ph ph-router service-icon"></i>
-                        <span class="service-title">ตั้งค่า Router (192.168.20.1)</span>
-                    </div>
+                <a id="link-router" href="http://192.168.20.1" target="_blank" class="service-card" style="display:none;">
+                    <div class="service-info"><i class="ph ph-router service-icon"></i><span class="service-title">ตั้งค่า Router (192.168.20.1)</span></div>
                     <i class="ph ph-caret-right" style="color: var(--text-muted);"></i>
                 </a>
-
-                <!-- ลิงก์ไปตัวเซิร์ฟเวอร์หลัก SiriHouse -->
                 <a id="link-server" href="#" class="service-card">
-                    <div class="service-info">
-                        <i class="ph ph-cpu service-icon"></i>
-                        <span class="service-title">เข้าสู่ระบบ SiriHouse Server</span>
-                    </div>
+                    <div class="service-info"><i class="ph ph-cpu service-icon"></i><span class="service-title">เข้าสู่ระบบ SiriHouse Server</span></div>
                     <i class="ph ph-caret-right" style="color: var(--text-muted);"></i>
                 </a>
             </div>
         </div>
 
-        <!-- 3. หน้าแสดง Error เมื่อเข้าไม่ได้ -->
         <div id="errorState" class="hidden">
-            <div id="network-badge-error" class="badge" style="background: rgba(248, 113, 113, 0.15); color: var(--error-red); border: 1px solid rgba(248, 113, 113, 0.3);">
-                ❌ ไม่สามารถเชื่อมต่อกับบ้านได้
-            </div>
-            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.5;">
-                ไม่พบการเชื่อมต่อกับบ้านในขณะนี้ครับ 😊 หากอยู่นอกบ้าน กรุณาเปิดแอป Tailscale แล้วลองใหม่อีกครั้ง
-            </p>
-            
-            <button onclick="openTailscaleApp()" class="btn-action">
-                <i class="ph ph-shield-check" style="font-size: 20px;"></i> เปิดแอป Tailscale
-            </button>
-            <button onclick="checkConnection()" class="btn-action btn-retry">
-                <i class="ph ph-arrows-clockwise" style="font-size: 18px;"></i> ลองเชื่อมต่ออีกครั้ง
-            </button>
+            <div class="badge" style="background: rgba(248, 113, 113, 0.15); color: var(--error-red); border: 1px solid rgba(248, 113, 113, 0.3);">❌ ไม่สามารถเชื่อมต่อกับบ้านได้</div>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.5;">ไม่พบการเชื่อมต่อกับบ้านในขณะนี้ครับ 😊 หากอยู่นอกบ้าน กรุณาเปิดแอป Tailscale แล้วลองใหม่อีกครั้ง</p>
+            <button onclick="openTailscaleApp()" class="btn-action"><i class="ph ph-shield-check"></i> เปิดแอป Tailscale</button>
+            <button onclick="window.location.reload()" class="btn-action btn-retry"><i class="ph ph-arrows-clockwise"></i> ลองเชื่อมต่ออีกครั้ง</button>
         </div>
-
     </div>
 </div>
 
 <script>
     // ================= CONFIGURATION =================
-    const LOCAL_LAN_URL = "http://sirihouse.local";            // หรือ http://192.168.20.X
-    const TAILSCALE_URL = "http://sirihouse.tailb30c42.ts.net"; // หรือ http://100.118.132.29
-    const TIMEOUT_MS = 1500; 
+    // แก้ไข IP ให้ตรงกับ Server ในบ้านของคุณ
+    const LOCAL_LAN_URL = "http://sirihouse.local";            
+    const TAILSCALE_URL = "http://sirihouse.tailb30c42.ts.net"; 
+    const TIMEOUT_MS = 2000; 
     // =================================================
 
-    function testConnection(url) {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    function testConnection(baseUrl) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            let isSettled = false;
+            const timer = setTimeout(() => {
+                if (!isSettled) { isSettled = true; img.src = ""; resolve(false); }
+            }, TIMEOUT_MS);
 
-        return fetch(url + "/favicon.ico", { mode: 'no-cors', cache: 'no-store', signal: controller.signal })
-            .then(() => { clearTimeout(timeoutId); return true; })
-            .catch(() => { clearTimeout(timeoutId); return false; });
+            img.onload = () => { if (!isSettled) { isSettled = true; clearTimeout(timer); resolve(true); } };
+            img.onerror = () => { if (!isSettled) { isSettled = true; clearTimeout(timer); resolve(true); } };
+            img.src = baseUrl + "/favicon.ico?t=" + new Date().getTime();
+        });
     }
 
     async function checkConnection() {
@@ -304,82 +135,26 @@
         const errorState = document.getElementById('errorState');
         const statusText = document.getElementById('statusText');
 
-        checkingState.classList.remove('hidden');
-        dashboardState.classList.add('hidden');
-        errorState.classList.add('hidden');
-
-        // ----- Step 1: เช็ควง LAN ในบ้าน -----
         statusText.innerText = "กำลังตรวจสอบเครือข่ายภายในบ้าน...";
-        const isLocalSuccess = await testConnection(LOCAL_LAN_URL);
-        
-        if (isLocalSuccess) {
-            // สลับหน้า Redirect ไป Local หรือแสดง Dashboard
-            window.location.replace(LOCAL_LAN_URL);
-            return;
-        }
+        if (await testConnection(LOCAL_LAN_URL)) { window.location.replace(LOCAL_LAN_URL); return; }
 
-        // ----- Step 2: เช็คผ่าน Tailscale -----
         statusText.innerText = "กำลังตรวจสอบการเชื่อมต่อ Tailscale...";
-        const isTailscaleSuccess = await testConnection(TAILSCALE_URL);
+        if (await testConnection(TAILSCALE_URL)) { window.location.replace(TAILSCALE_URL); return; }
 
-        if (isTailscaleSuccess) {
-            window.location.replace(TAILSCALE_URL);
-            return;
-        }
-
-        // ----- Step 3: ล้มเหลวทั้งคู่ -----
         checkingState.classList.add('hidden');
         errorState.classList.remove('hidden');
     }
 
-    function initNetworkBadge() {
-        const badge = document.getElementById('network-badge');
-        const routerCard = document.getElementById('link-router');
-        const currentHost = window.location.hostname;
-
-        const isPrivateLAN = currentHost.startsWith('192.168.20.') || 
-                             currentHost === 'sirihouse.local' ||
-                             currentHost.endsWith('.local');
-
-        const isTailscale = currentHost === '100.118.132.29' || 
-                            currentHost.startsWith('100.') ||
-                            currentHost === 'sirihouse.tailb30c42.ts.net' ||
-                            currentHost.endsWith('.ts.net');
-
-        if (isPrivateLAN) {
-            if (badge) {
-                badge.className = 'badge badge-lan';
-                badge.innerHTML = '<i class="ph-fill ph-circle"></i> เชื่อมต่อผ่าน: LAN (ในบ้าน)';
-            }
-            if (routerCard) routerCard.style.display = 'flex';
-        } else if (isTailscale) {
-            if (badge) {
-                badge.className = 'badge badge-tailscale';
-                badge.innerHTML = '<i class="ph-fill ph-circle"></i> เชื่อมต่อผ่าน: Tailscale (นอกบ้าน)';
-            }
-            if (routerCard) routerCard.style.display = 'none';
-        }
-    }
-
     function openTailscaleApp() {
         window.location.href = "tailscale://";
-        setTimeout(() => {
-            window.open("https://login.tailscale.com/admin/machines", "_blank");
-        }, 500);
+        setTimeout(() => { window.open("https://login.tailscale.com/admin/machines", "_blank"); }, 500);
     }
 
-    // PWA Service Worker Registration
     if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js').catch(err => console.log(err));
-        });
+        window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(err => console.log(err)); });
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-        checkConnection();
-        initNetworkBadge();
-    });
+    window.addEventListener('DOMContentLoaded', () => { checkConnection(); });
 </script>
-
 </body>
 </html>
