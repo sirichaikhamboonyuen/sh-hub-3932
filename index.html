@@ -109,52 +109,69 @@
 
 <script>
     // ================= CONFIGURATION =================
-    // แก้ไข IP ให้ตรงกับ Server ในบ้านของคุณ
-    const LOCAL_LAN_URL = "http://sirihouse.local";            
-    const TAILSCALE_URL = "http://sirihouse.tailb30c42.ts.net"; 
-    const TIMEOUT_MS = 2000; 
+    const TAILSCALE_URL = "http://sirihouse.tailb30c42.ts.net"; // หรือ http://100.118.132.29
+    const LOCAL_LAN_URL = "http://sirihouse.local";            // หรือ http://192.168.20.X
+    const TIMEOUT_MS = 1800; 
     // =================================================
 
-    function testConnection(baseUrl) {
-        return new Promise((resolve) => {
-            const img = new Image();
-            let isSettled = false;
-            const timer = setTimeout(() => {
-                if (!isSettled) { isSettled = true; img.src = ""; resolve(false); }
-            }, TIMEOUT_MS);
+    // ฟังก์ชันเช็กสัญญาณด้วย fetch แบบข้าม CORS/Mixed Content
+    function checkUrl(url) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
-            img.onload = () => { if (!isSettled) { isSettled = true; clearTimeout(timer); resolve(true); } };
-            img.onerror = () => { if (!isSettled) { isSettled = true; clearTimeout(timer); resolve(true); } };
-            img.src = baseUrl + "/favicon.ico?t=" + new Date().getTime();
-        });
+        return fetch(url + "/favicon.ico", { mode: 'no-cors', cache: 'no-store', signal: controller.signal })
+            .then(() => {
+                clearTimeout(timeoutId);
+                return true;
+            })
+            .catch(() => {
+                clearTimeout(timeoutId);
+                return false;
+            });
     }
 
     async function checkConnection() {
         const checkingState = document.getElementById('checkingState');
-        const dashboardState = document.getElementById('dashboardState');
         const errorState = document.getElementById('errorState');
         const statusText = document.getElementById('statusText');
 
-        statusText.innerText = "กำลังตรวจสอบเครือข่ายภายในบ้าน...";
-        if (await testConnection(LOCAL_LAN_URL)) { window.location.replace(LOCAL_LAN_URL); return; }
-
+        // Step 1: เช็กผ่าน Tailscale ก่อน (ถ้านอกบ้านเปิด Tailscale ไว้ หรืออยู่ในบ้าน จะวิ่งเข้าเส้นนี้ได้ชัวร์สุด)
         statusText.innerText = "กำลังตรวจสอบการเชื่อมต่อ Tailscale...";
-        if (await testConnection(TAILSCALE_URL)) { window.location.replace(TAILSCALE_URL); return; }
+        const isTailscaleOk = await checkUrl(TAILSCALE_URL);
+        if (isTailscaleOk) {
+            window.location.replace(TAILSCALE_URL);
+            return;
+        }
 
+        // Step 2: ถ้าไม่มี Tailscale ค่อยเช็กวง LAN ในบ้าน
+        statusText.innerText = "กำลังตรวจสอบเครือข่ายภายในบ้าน...";
+        const isLocalOk = await checkUrl(LOCAL_LAN_URL);
+        if (isLocalOk) {
+            window.location.replace(LOCAL_LAN_URL);
+            return;
+        }
+
+        // Step 3: หากเข้าไม่ได้ทั้งคู่ (อยู่นอกบ้านและไม่ได้เปิด Tailscale)
         checkingState.classList.add('hidden');
         errorState.classList.remove('hidden');
     }
 
     function openTailscaleApp() {
         window.location.href = "tailscale://";
-        setTimeout(() => { window.open("https://login.tailscale.com/admin/machines", "_blank"); }, 500);
+        setTimeout(() => { 
+            window.open("https://login.tailscale.com/admin/machines", "_blank"); 
+        }, 500);
     }
 
     if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(err => console.log(err)); });
+        window.addEventListener('load', () => { 
+            navigator.serviceWorker.register('./sw.js').catch(err => console.log(err)); 
+        });
     }
 
-    window.addEventListener('DOMContentLoaded', () => { checkConnection(); });
+    window.addEventListener('DOMContentLoaded', () => { 
+        checkConnection(); 
+    });
 </script>
 </body>
 </html>
