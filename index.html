@@ -54,7 +54,7 @@
 
         .container { width: 100%; max-width: 420px; }
         .glass-card { background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--card-border); border-radius: 28px; padding: 2rem 1.5rem; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); text-align: center; }
-       .header-icon { width: 64px; height: 64px; border-radius: 20px; margin: 0 auto 1rem; display: block; object-fit: contain; box-shadow: 0 8px 16px rgba(2, 132, 199, 0.3); }
+        .header-icon { width: 64px; height: 64px; border-radius: 20px; margin: 0 auto 1rem; display: block; object-fit: contain; box-shadow: 0 8px 16px rgba(2, 132, 199, 0.3); }
         h1 { font-size: 1.4rem; font-weight: 600; margin-bottom: 0.25rem; letter-spacing: -0.5px; }
         .subtitle { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.25rem; }
         .badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 500; margin-bottom: 1.5rem; }
@@ -66,11 +66,11 @@
         .service-icon { font-size: 22px; color: var(--accent-blue); background: rgba(56, 189, 248, 0.1); padding: 8px; border-radius: 10px; }
         .spinner { width: 44px; height: 44px; border: 3px solid rgba(255, 255, 255, 0.1); border-radius: 50%; border-left-color: var(--accent-blue); animation: spin 1s linear infinite; margin: 1.5rem auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .btn-action { width: 100%; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; padding: 14px; border-radius: 14px; font-size: 0.95rem; font-weight: 600; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; }
+        .btn-action { width: 100%; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; padding: 14px; border-radius: 14px; font-size: 0.95rem; font-weight: 600; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; transition: opacity 0.2s ease; }
+        .btn-action:active { opacity: 0.8; }
         .btn-retry { background: transparent; color: var(--text-muted); border: 1px solid var(--card-border); }
         .hidden { display: none !important; }
-        .app-logo { width: 64px; height: 64px; margin: 0 auto 1rem; display: block; border-radius: 16px; object-fit: contain;
-}
+        .app-logo { width: 64px; height: 64px; margin: 0 auto 1rem; display: block; border-radius: 16px; object-fit: contain; }
     </style>
 </head>
 <body>
@@ -104,52 +104,80 @@
             <div class="badge" style="background: rgba(248, 113, 113, 0.15); color: var(--error-red); border: 1px solid rgba(248, 113, 113, 0.3);">❌ ไม่สามารถเชื่อมต่อกับบ้านได้</div>
             <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.5;">ไม่พบการเชื่อมต่อกับบ้านในขณะนี้ครับ 😊 หากอยู่นอกบ้าน กรุณาเปิดแอป Tailscale แล้วลองใหม่อีกครั้ง</p>
             <button onclick="openTailscaleApp()" class="btn-action"><i class="ph ph-shield-check"></i> เปิดแอป Tailscale</button>
-            <button onclick="window.location.reload()" class="btn-action btn-retry"><i class="ph ph-arrows-clockwise"></i> ลองเชื่อมต่ออีกครั้ง</button>
+            <button onclick="retryCheck()" class="btn-action btn-retry"><i class="ph ph-arrows-clockwise"></i> ลองเชื่อมต่ออีกครั้ง</button>
         </div>
     </div>
 </div>
 
 <script>
     // ================= CONFIGURATION =================
-    //const TAILSCALE_URL = "http://sirihouse.tailb30c42.ts.net";
-    const TAILSCALE_URL = "http://100.118.132.29"; 
+    const TAILSCALE_URL = "http://100.118.132.29"; // หรือใช้ "http://sirihouse.tailb30c42.ts.net"
     const LOCAL_LAN_URL = "http://sirihouse.local"; 
     const TIMEOUT_MS = 2500; 
     // =================================================
 
-    // ฟังก์ชันเช็กการเชื่อมต่อด้วย fetch (รองรับ no-cors)
-    async function checkServerAlive(baseUrl) {
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    // ฟังก์ชันเช็กการเชื่อมต่อแบบผสม (Fetch + Image Fallback) พร้อมระบบ Anti-Cache
+    function checkServerAlive(baseUrl) {
+        return new Promise((resolve) => {
+            const controller = new AbortController();
+            let isSettled = false;
 
-        try {
-            // mode: 'no-cors' จะช่วยข้ามปัญหาเรื่อง CORS แต่ถ้าไม่พบ IP/DNS จะ throw error ไป catch ทันที
-            await fetch(baseUrl + "/favicon.ico?t=" + Date.now(), {
+            const timer = setTimeout(() => {
+                if (!isSettled) {
+                    isSettled = true;
+                    controller.abort();
+                    resolve(false);
+                }
+            }, TIMEOUT_MS);
+
+            // สร้างพารามิเตอร์สุ่มเพื่อป้องกันเบราว์เซอร์/Service Worker จำค่า Cache
+            const cacheBusterUrl = baseUrl + "/favicon.ico?nocache=" + Date.now() + "_" + Math.floor(Math.random() * 100000);
+
+            fetch(cacheBusterUrl, {
                 method: 'GET',
                 mode: 'no-cors',
                 cache: 'no-store',
                 signal: controller.signal
+            }).then(() => {
+                if (!isSettled) {
+                    isSettled = true;
+                    clearTimeout(timer);
+                    resolve(true);
+                }
+            }).catch(() => {
+                // หาก fetch ติดเรื่อง Mixed Content (HTTPS -> HTTP) ให้สลับไปใช้ Image() เป็นสำรอง
+                if (!isSettled) {
+                    const img = new Image();
+                    img.onload = () => {
+                        if (!isSettled) {
+                            isSettled = true;
+                            clearTimeout(timer);
+                            resolve(true);
+                        }
+                    };
+                    img.onerror = () => {
+                        if (!isSettled) {
+                            isSettled = true;
+                            clearTimeout(timer);
+                            resolve(false);
+                        }
+                    };
+                    img.src = cacheBusterUrl;
+                }
             });
-            clearTimeout(timer);
-            return true; // เชื่อมต่อปลายทางได้
-        } catch (err) {
-            clearTimeout(timer);
-            return false; // ไม่พบปลายทาง / DNS ไม่เจอ / สัญญาณดับ
-        }
+        });
     }
 
     async function checkConnection() {
-        const checkingState = document.getElementById('checkingState');
-        const errorState = document.getElementById('errorState');
         const statusText = document.getElementById('statusText');
 
-        // หากมือถือไม่ได้ต่ออินเทอร์เน็ต/Wi-Fi เลย ให้แสดงหน้า Error ทันที
+        // 0. ตรวจสอบว่าอุปกรณ์ต่ออินเทอร์เน็ตอยู่หรือไม่
         if (!navigator.onLine) {
             showErrorState();
             return;
         }
 
-        // 1. เช็กการเชื่อมต่อผ่าน Tailscale Domain
+        // 1. เช็กการเชื่อมต่อผ่าน Tailscale
         if (statusText) statusText.innerText = "กำลังตรวจสอบการเชื่อมต่อ Tailscale...";
         const isTailscaleOk = await checkServerAlive(TAILSCALE_URL);
         if (isTailscaleOk) {
@@ -157,7 +185,7 @@
             return;
         }
 
-        // 2. ถ้าเข้าไม่ได้ ค่อยเช็กการเชื่อมต่อภายในบ้าน (Local LAN)
+        // 2. เช็กการเชื่อมต่อภายในบ้าน (Local LAN)
         if (statusText) statusText.innerText = "กำลังตรวจสอบเครือข่ายภายในบ้าน...";
         const isLocalOk = await checkServerAlive(LOCAL_LAN_URL);
         if (isLocalOk) {
@@ -165,8 +193,25 @@
             return;
         }
 
-        // 3. หากเชื่อมต่อไม่ได้ทั้งสองทาง ให้แสดง Error Card สวยๆ ที่เตรียมไว้
+        // 3. หากเชื่อมต่อไม่ได้ทั้งสองทาง ให้แสดงหน้า Error
         showErrorState();
+    }
+
+    // ฟังก์ชันยิงเช็กสัญญาณใหม่ทันทีที่กดปุ่ม "ลองเชื่อมต่ออีกครั้ง"
+    async function retryCheck() {
+        const checkingState = document.getElementById('checkingState');
+        const errorState = document.getElementById('errorState');
+        const statusText = document.getElementById('statusText');
+
+        // สลับไปแสดงสถานะกำลังตรวจสอบ
+        if (errorState) errorState.classList.add('hidden');
+        if (checkingState) checkingState.classList.remove('hidden');
+        if (statusText) statusText.innerText = "กำลังลองเชื่อมต่อใหม่อีกครั้ง...";
+
+        // หน่วงเวลาสั้นๆ 300ms ให้ UI แสดงผล แล้วเช็กสัญญาณสด
+        setTimeout(() => {
+            checkConnection();
+        }, 300);
     }
 
     function showErrorState() {
@@ -183,6 +228,7 @@
         }, 500);
     }
 
+    // ลงทะเบียน Service Worker
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => { 
             navigator.serviceWorker.register('./sw.js').catch(err => console.log(err)); 
@@ -193,6 +239,5 @@
         checkConnection(); 
     });
 </script>
-    
 </body>
 </html>
