@@ -76,7 +76,7 @@
             <p id="statusText" style="font-size: 0.9rem; color: var(--text-muted);">กำลังตรวจสอบเส้นทางเชื่อมต่อ...</p>
         </div>
 
-        <!-- สถานะเชื่อมต่อสำเร็จ (แสดงปุ่มทางเข้า) -->
+        <!-- สถานะเชื่อมต่อสำเร็จ -->
         <div id="successState" class="hidden">
             <div id="networkBadge" class="badge"></div>
             <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">เชื่อมต่อเครือข่ายสำเร็จ สามารถเข้าใช้งานระบบได้ครับ</p>
@@ -94,34 +94,61 @@
 </div>
 
 <script>
+    // ================= CONFIGURATION =================
+    // หากใช้นามสกุล .local แล้วคอมพิวเตอร์บางเครื่องสแกนไม่เจอ แนะนำเปลี่ยนใส่ IP ตรง เช่น "http://192.168.20.100"
+    const LOCAL_LAN_URL = "http://192.168.20.200"; 
     const TAILSCALE_URL = "http://100.118.132.29"; 
-    const LOCAL_LAN_URL = "http://sirihouse.local"; 
-    const TIMEOUT_MS = 2000; 
+    const TIMEOUT_MS = 2500; 
+    // =================================================
 
+    // ฟังก์ชันตรวจสอบสัญญาณแบบแม่นยำ ไม่ยอมให้เกิด false positive
     function checkServerAlive(baseUrl) {
         return new Promise((resolve) => {
-            const img = new Image();
             let isSettled = false;
+            const controller = new AbortController();
 
             const timer = setTimeout(() => {
                 if (!isSettled) {
                     isSettled = true;
-                    img.src = "";
+                    controller.abort();
                     resolve(false);
                 }
             }, TIMEOUT_MS);
 
-            const handleResponse = () => {
+            // วิธีที่ 1: สแกนผ่าน fetch
+            fetch(baseUrl + "/?nocache=" + Date.now(), {
+                method: 'GET',
+                mode: 'no-cors',
+                cache: 'no-store',
+                signal: controller.signal
+            }).then(() => {
                 if (!isSettled) {
                     isSettled = true;
                     clearTimeout(timer);
-                    resolve(true);
+                    resolve(true); // เจอสัญญาณจริง!
                 }
-            };
-
-            img.onload = handleResponse;
-            img.onerror = handleResponse;
-            img.src = baseUrl + "/favicon.ico?t=" + Date.now() + "_" + Math.floor(Math.random() * 10000);
+            }).catch(() => {
+                // วิธีที่ 2: ถ้า fetch โดนบล็อก ให้ใช้ Image Probe แบบดึงภาพที่มีจริง
+                if (!isSettled) {
+                    const img = new Image();
+                    img.onload = () => {
+                        if (!isSettled) {
+                            isSettled = true;
+                            clearTimeout(timer);
+                            resolve(true); // เจอสัญญาณจริง!
+                        }
+                    };
+                    // หากเกิด Error (ไม่มี Tailscale / Unreachable) ให้ตอบ false ทันที!
+                    img.onerror = () => {
+                        if (!isSettled) {
+                            isSettled = true;
+                            clearTimeout(timer);
+                            resolve(false);
+                        }
+                    };
+                    img.src = baseUrl + "/favicon.ico?t=" + Date.now();
+                }
+            });
         });
     }
 
@@ -133,7 +160,15 @@
             return;
         }
 
-        // 1. เช็ก Tailscale
+        // 1. เช็ก Wi-Fi / LAN ในบ้านเป็นอันดับแรกเสมอ
+        if (statusText) statusText.innerText = "กำลังตรวจสอบ Wi-Fi ภายในบ้าน...";
+        const isLocalOk = await checkServerAlive(LOCAL_LAN_URL);
+        if (isLocalOk) {
+            showSuccessState(LOCAL_LAN_URL, "badge-lan", "🏠 เชื่อมต่อผ่าน Wi-Fi ในบ้าน");
+            return;
+        }
+
+        // 2. เช็ก Tailscale เฉพาะตอนที่อยู่นอกบ้าน หรือเช็ก LAN ไม่เจอ
         if (statusText) statusText.innerText = "กำลังตรวจสอบ Tailscale...";
         const isTailscaleOk = await checkServerAlive(TAILSCALE_URL);
         if (isTailscaleOk) {
@@ -141,15 +176,7 @@
             return;
         }
 
-        // 2. เช็ก LAN
-        if (statusText) statusText.innerText = "กำลังตรวจสอบเครือข่ายภายในบ้าน...";
-        const isLocalOk = await checkServerAlive(LOCAL_LAN_URL);
-        if (isLocalOk) {
-            showSuccessState(LOCAL_LAN_URL, "badge-lan", "🏠 เชื่อมต่อผ่าน Wi-Fi ในบ้าน");
-            return;
-        }
-
-        // 3. ปิดเน็ต / ไร้สัญญาณ
+        // 3. ถ้าไม่มี Tailscale / ปิดเน็ต / ไร้สัญญาณ แสดง Error
         showErrorState();
     }
 
