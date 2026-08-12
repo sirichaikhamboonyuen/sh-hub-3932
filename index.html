@@ -8,16 +8,11 @@
     <link rel="icon" type="image/png" href="icon.png">
     <link rel="apple-touch-icon" href="icon.png">
     
-    <!-- PWA Links & Configs -->
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="SiriHouse Hub">
-    <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0f172a">
-    <meta name="robots" content="noindex, nofollow">
 
-    <!-- Google Fonts & Phosphor Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -31,7 +26,6 @@
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --accent-blue: #38bdf8;
-            --accent-green: #34d399;
             --error-red: #f87171;
             --badge-lan-bg: rgba(52, 211, 153, 0.15);
             --badge-lan-text: #34d399;
@@ -39,7 +33,7 @@
             --badge-ts-text: #38bdf8;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', 'Plus Jakarta Sans', sans-serif; }
 
         body {
             background-color: var(--bg-color);
@@ -54,13 +48,15 @@
 
         .container { width: 100%; max-width: 420px; }
         .glass-card { background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--card-border); border-radius: 28px; padding: 2rem 1.5rem; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); text-align: center; }
-        h1 { font-size: 1.4rem; font-weight: 600; margin-bottom: 0.25rem; letter-spacing: -0.5px; }
+        h1 { font-size: 1.4rem; font-weight: 600; margin-bottom: 0.25rem; }
         .subtitle { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.25rem; }
-        .badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 500; margin-bottom: 1.5rem; }
+        .badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 500; margin-bottom: 1rem; }
+        .badge-lan { background-color: var(--badge-lan-bg); color: var(--badge-lan-text); border: 1px solid rgba(52, 211, 153, 0.3); }
+        .badge-tailscale { background-color: var(--badge-ts-bg); color: var(--badge-ts-text); border: 1px solid rgba(56, 189, 248, 0.3); }
         .spinner { width: 44px; height: 44px; border: 3px solid rgba(255, 255, 255, 0.1); border-radius: 50%; border-left-color: var(--accent-blue); animation: spin 1s linear infinite; margin: 1.5rem auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .btn-action { width: 100%; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; padding: 14px; border-radius: 14px; font-size: 0.95rem; font-weight: 600; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; transition: opacity 0.2s ease; }
-        .btn-action:active { opacity: 0.8; }
+        
+        .btn-action { width: 100%; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; padding: 14px; border-radius: 14px; font-size: 0.95rem; font-weight: 600; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; text-decoration: none; }
         .btn-retry { background: transparent; color: var(--text-muted); border: 1px solid var(--card-border); }
         .hidden { display: none !important; }
         .app-logo { width: 64px; height: 64px; margin: 0 auto 1rem; display: block; border-radius: 16px; object-fit: contain; }
@@ -74,11 +70,20 @@
         <h1>SiriHouse Hub</h1>
         <p class="subtitle">ศูนย์รวมการใช้งานระบบสมาร์ทโฮม SiriHouse</p>
 
+        <!-- สถานะกำลังตรวจสอบ -->
         <div id="checkingState">
             <div class="spinner"></div>
             <p id="statusText" style="font-size: 0.9rem; color: var(--text-muted);">กำลังตรวจสอบเส้นทางเชื่อมต่อ...</p>
         </div>
 
+        <!-- สถานะเชื่อมต่อสำเร็จ (แสดงปุ่มทางเข้า) -->
+        <div id="successState" class="hidden">
+            <div id="networkBadge" class="badge"></div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">เชื่อมต่อเครือข่ายสำเร็จ สามารถเข้าใช้งานระบบได้ครับ</p>
+            <a id="serverBtn" href="#" class="btn-action"><i class="ph ph-house"></i> เข้าสู่หน้าหลัก SiriHouse Hub</a>
+        </div>
+
+        <!-- สถานะเกิดข้อผิดพลาด -->
         <div id="errorState" class="hidden">
             <div class="badge" style="background: rgba(248, 113, 113, 0.15); color: var(--error-red); border: 1px solid rgba(248, 113, 113, 0.3);">❌ ไม่สามารถเชื่อมต่อกับบ้านได้</div>
             <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.5;">ไม่พบการเชื่อมต่อกับบ้านในขณะนี้ครับ 😊 หากอยู่นอกบ้าน กรุณาเปิดแอป Tailscale แล้วลองใหม่อีกครั้ง</p>
@@ -89,19 +94,15 @@
 </div>
 
 <script>
-    // ================= CONFIGURATION =================
     const TAILSCALE_URL = "http://100.118.132.29"; 
     const LOCAL_LAN_URL = "http://sirihouse.local"; 
-    const TIMEOUT_MS = 3000; // ระยะเวลารอคำตอบ (3 วินาที)
-    // =================================================
+    const TIMEOUT_MS = 2000; 
 
-    // ตรวจสอบสัญญาณด้วย Image Probe (แก้ปัญหา Mixed Content HTTPS->HTTP ได้ 100%)
     function checkServerAlive(baseUrl) {
         return new Promise((resolve) => {
             const img = new Image();
             let isSettled = false;
 
-            // หากเกิน 2 วินาทีไม่มีการตอบรับ แปลว่าไร้สัญญาณ / ไม่ได้เปิด Tailscale
             const timer = setTimeout(() => {
                 if (!isSettled) {
                     isSettled = true;
@@ -110,19 +111,16 @@
                 }
             }, TIMEOUT_MS);
 
-            // หาก Server มีตัวตนอยู่จริง จะตอบกลับมาทันที (กระตุ้น onload หรือ onerror)
             const handleResponse = () => {
                 if (!isSettled) {
                     isSettled = true;
                     clearTimeout(timer);
-                    resolve(true); // เจอสัญญาณแล้ว!
+                    resolve(true);
                 }
             };
 
             img.onload = handleResponse;
-            img.onerror = handleResponse; // ตอบ Error กลับมาก็ถือว่าเจอ Server
-
-            // ใส่ตัวเลขสุ่มป้องกันเบราว์เซอร์จำ Cache
+            img.onerror = handleResponse;
             img.src = baseUrl + "/favicon.ico?t=" + Date.now() + "_" + Math.floor(Math.random() * 10000);
         });
     }
@@ -135,45 +133,55 @@
             return;
         }
 
-        // 1. ตรวจสอบ Tailscale
-        if (statusText) statusText.innerText = "กำลังตรวจสอบการเชื่อมต่อ Tailscale...";
+        // 1. เช็ก Tailscale
+        if (statusText) statusText.innerText = "กำลังตรวจสอบ Tailscale...";
         const isTailscaleOk = await checkServerAlive(TAILSCALE_URL);
         if (isTailscaleOk) {
-            window.location.replace(TAILSCALE_URL);
+            showSuccessState(TAILSCALE_URL, "badge-tailscale", "🌐 เชื่อมต่อผ่าน Tailscale");
             return;
         }
 
-        // 2. ตรวจสอบเครือข่ายภายในบ้าน (LAN)
+        // 2. เช็ก LAN
         if (statusText) statusText.innerText = "กำลังตรวจสอบเครือข่ายภายในบ้าน...";
         const isLocalOk = await checkServerAlive(LOCAL_LAN_URL);
         if (isLocalOk) {
-            window.location.replace(LOCAL_LAN_URL);
+            showSuccessState(LOCAL_LAN_URL, "badge-lan", "🏠 เชื่อมต่อผ่าน Wi-Fi ในบ้าน");
             return;
         }
 
-        // 3. หากเชื่อมต่อไม่ได้ทั้งสองทาง แสดง Error
+        // 3. ปิดเน็ต / ไร้สัญญาณ
         showErrorState();
     }
 
-    async function retryCheck() {
-        const checkingState = document.getElementById('checkingState');
-        const errorState = document.getElementById('errorState');
-        const statusText = document.getElementById('statusText');
+    function showSuccessState(targetUrl, badgeClass, badgeText) {
+        document.getElementById('checkingState').classList.add('hidden');
+        document.getElementById('errorState').classList.add('hidden');
+        
+        const successState = document.getElementById('successState');
+        const networkBadge = document.getElementById('networkBadge');
+        const serverBtn = document.getElementById('serverBtn');
 
-        if (errorState) errorState.classList.add('hidden');
-        if (checkingState) checkingState.classList.remove('hidden');
-        if (statusText) statusText.innerText = "กำลังลองเชื่อมต่อใหม่อีกครั้ง...";
-
-        setTimeout(() => {
-            checkConnection();
-        }, 200);
+        networkBadge.className = "badge " + badgeClass;
+        networkBadge.innerText = badgeText;
+        serverBtn.href = targetUrl;
+        
+        successState.classList.remove('hidden');
     }
 
     function showErrorState() {
-        const checkingState = document.getElementById('checkingState');
-        const errorState = document.getElementById('errorState');
-        if (checkingState) checkingState.classList.add('hidden');
-        if (errorState) errorState.classList.remove('hidden');
+        document.getElementById('checkingState').classList.add('hidden');
+        document.getElementById('successState').classList.add('hidden');
+        document.getElementById('errorState').classList.remove('hidden');
+    }
+
+    function retryCheck() {
+        document.getElementById('errorState').classList.add('hidden');
+        document.getElementById('successState').classList.add('hidden');
+        document.getElementById('checkingState').classList.remove('hidden');
+        
+        setTimeout(() => {
+            checkConnection();
+        }, 200);
     }
 
     function openTailscaleApp() {
@@ -181,15 +189,6 @@
         setTimeout(() => { 
             window.open("https://login.tailscale.com/admin/machines", "_blank"); 
         }, 500);
-    }
-
-    // เคลียร์ Service Worker เก่าทิ้งเพื่อป้องกันปัญหาติด Cache
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(registrations => {
-            for (let registration of registrations) {
-                registration.unregister();
-            }
-        });
     }
 
     window.addEventListener('DOMContentLoaded', () => { 
