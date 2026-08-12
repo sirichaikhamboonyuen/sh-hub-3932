@@ -54,7 +54,7 @@
 
         .container { width: 100%; max-width: 420px; }
         .glass-card { background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--card-border); border-radius: 28px; padding: 2rem 1.5rem; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); text-align: center; }
-        .header-icon { width: 64px; height: 64px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 32px; color: #fff; box-shadow: 0 8px 16px rgba(2, 132, 199, 0.3); }
+       .header-icon { width: 64px; height: 64px; border-radius: 20px; margin: 0 auto 1rem; display: block; object-fit: contain; box-shadow: 0 8px 16px rgba(2, 132, 199, 0.3); }
         h1 { font-size: 1.4rem; font-weight: 600; margin-bottom: 0.25rem; letter-spacing: -0.5px; }
         .subtitle { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.25rem; }
         .badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 500; margin-bottom: 1.5rem; }
@@ -75,7 +75,7 @@
 
 <div class="container">
     <div class="glass-card">
-        <div class="header-icon"><i class="ph ph-house-line"></i></div>
+        <img src="favicon.png" alt="SiriHouse Logo" class="header-icon">
         <h1>SiriHouse Hub</h1>
         <p class="subtitle">ศูนย์รวมการใช้งานระบบสมาร์ทโฮม SiriHouse</p>
 
